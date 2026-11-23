@@ -76,8 +76,14 @@ class TelemetryCollector:
 
     def __init__(self):
         """Initialize telemetry collector"""
-        # Import config here to avoid circular imports
-        from .config import telemetry_config
+        # Import config here to avoid circular imports. config.py is
+        # gitignored (it holds the real Supabase keys), so a source checkout
+        # may not have it. Fall back to a disabled config instead of crashing.
+        try:
+            from .config import telemetry_config
+        except ImportError:
+            from .telemetry_defaults import disabled_telemetry_config as telemetry_config
+            logger.debug("blender_mcp.config not found; telemetry disabled")
         self.config = telemetry_config
 
         # Check if disabled via environment variables
